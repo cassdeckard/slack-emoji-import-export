@@ -17,6 +17,41 @@
 (function() {
     'use strict';
 
+    function addEmojiRows(teamName) {
+        var emojiList = savedEmoji[teamName] || {};
+        var thead = '<thead id="emoji-team-' + teamName + '" hidden>';
+        Object.keys(emojiList).forEach(function(emojiName) {
+            var emojiUrl = emojiList[emojiName];
+            var importId = 'emoji-import-' + emojiName;
+            var tr = '';
+            tr += '<tr class="emoji_row">';
+            tr += '    <td headers="custom_emoji_image" class="align_middle"><span data-original="'+ emojiUrl +'" class="lazy emoji-wrapper" style="background-color: transparent;"></span></td>';
+            tr += '    <td headers="custom_emoji_name" class="align_middle custom_emoji_name" style="">:'+ emojiName +':</td>';
+            if ($('[headers*="custom_emoji_name"]:contains(:' + emojiName + ':)')[0] === undefined) {
+                tr += '    <td headers="custom_emoji_type" class="align_middle"><a  class="display_flex align_items_center break_word bold" id="' + importId + '">Import</a></td>';
+            } else {
+                tr += '    <td headers="custom_emoji_type" class="align_middle">(name already used)</td>';
+            }
+            tr += '    <td headers="custom_emoji_author" class="author_cell hide_on_mobile" style="white-space: normal;"></td>';
+            tr += '    <td headers="custom_emoji_remove" class="align_middle align_right bold"></td>';
+            tr += '</tr>';
+            thead += tr;
+            $('body').on('click', '#' + importId, function(event) { importEmoji(emojiName, emojiUrl); });
+        });
+        thead +='</thead>';
+        $('#custom_emoji tbody').before(thead);
+    }
+
+    function hideAllEmojiSectionsExcept(exception, allTeams) {
+       allTeams.forEach( function(teamName) {
+          if (teamName == exception) {
+             $('#emoji-team-' + teamName).prop('hidden', false);
+          } else {
+             $('#emoji-team-' + teamName).prop('hidden', true);
+          }
+       });
+    }
+
     function importEmoji(name, url) {
         GM_xmlhttpRequest({
             method: "GET",
@@ -55,35 +90,17 @@
     GM_setValue(STORED_DATA_KEY, JSON.stringify(savedEmoji));
 
     var html = '<div>Import from: ';
-    Object.keys(savedEmoji).forEach(function(teamName) {
-        var disabled = (teamName == currentTeamName) ? ' disabled ' : ' ';
-        html += '<input type="button" class="btn"' + disabled + 'style="margin-left: 1.5rem;" value="' + teamName + '" id="' + STORED_DATA_KEY + '-btn-' + teamName + '">';
+    var allTeams = Object.keys(savedEmoji);
+    allTeams.forEach(function(teamName) {
+        var isCurrentTeam = (teamName == currentTeamName);
+        var disabled = isCurrentTeam ? ' disabled ' : ' ';
+        var buttonId = STORED_DATA_KEY + '-btn-' + teamName;
+        html += '<input type="button" class="btn"' + disabled + 'style="margin-left: 1.5rem;" value="' + teamName + '" id="' + buttonId + '">';
+        if (!isCurrentTeam) {
+           addEmojiRows(teamName);
+        }
+        $('body').on('click', '#' + buttonId, function(event) { hideAllEmojiSectionsExcept(teamName, allTeams); });
     });
     html += '</div>';
     $('#custom_emoji').before(html);
-
-    function addEmojiRows(teamName) {
-        var emojiList = savedEmoji[teamName] || {};
-        Object.keys(emojiList).forEach(function(emojiName) {
-            var emojiUrl = emojiList[emojiName];
-            var tr = '';
-            tr += '<tr class="emoji_row">';
-            tr += '    <td headers="custom_emoji_image" class="align_middle"><span data-original="'+ emojiUrl +'" class="lazy emoji-wrapper" style="background-color: transparent;"></span></td>';
-            tr += '    <td headers="custom_emoji_name" class="align_middle custom_emoji_name" style="">:'+ emojiName +':</td>';
-            if ($('[headers*="custom_emoji_name"]:contains(:' + emojiName + ':)')[0] === undefined) {
-                tr += '    <td headers="custom_emoji_type" class="align_middle"><a  class="display_flex align_items_center break_word bold" id="emoji-import-' + emojiName + '">Import</a></td>';
-            } else {
-                tr += '    <td headers="custom_emoji_type" class="align_middle">(name already used)</td>';
-            }
-            tr += '    <td headers="custom_emoji_author" class="author_cell hide_on_mobile" style="white-space: normal;"></td>';
-            tr += '    <td headers="custom_emoji_remove" class="align_middle align_right bold"></td>';
-            tr += '</tr>';
-
-            $('#custom_emoji tbody').before(tr);
-            var importId = '#emoji-import-' + emojiName;
-            $('body').on('click', importId, function(event) { importEmoji(emojiName, emojiUrl); });
-        });
-    }
-
-    addEmojiRows('teammabel');
 })();

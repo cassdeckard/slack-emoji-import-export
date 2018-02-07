@@ -29,4 +29,29 @@
     savedEmoji[subdomain] = newEmoji;
     console.log(savedEmoji);
     GM_setValue(STORED_DATA_KEY, JSON.stringify(savedEmoji));
+
+    var testHtml = '<div>Import from: ';
+    delete savedEmoji[subdomain];
+    Object.keys(savedEmoji).forEach(function(text) {
+        testHtml += '<input type="button" class="btn" style="margin-left: 1.5rem;" value="' + text + '" id="' + STORED_DATA_KEY + '-' + text + '">';
+    });
+    testHtml += '</div>';
+    $('#custom_emoji').before(testHtml);
+
+    function emojiRows(subdomain) {
+        var testTr = '';
+        var emojiList = savedEmoji[subdomain] || {};
+        Object.keys(emojiList).forEach(function(emojiName) {
+            testTr += '<tr class="emoji_row">';
+            testTr += '    <td headers="custom_emoji_image" class="align_middle"><span data-original="'+ emojiList[emojiName] +'" class="lazy emoji-wrapper" style="background-color: transparent;"></span></td>';
+            testTr += '    <td headers="custom_emoji_name" class="align_middle custom_emoji_name" style="">:'+ emojiName +':</td>';
+            testTr += '    <td headers="custom_emoji_type" class="align_middle"><a href="#" class="display_flex align_items_center break_word bold">Import</a></td>';
+            testTr += '    <td headers="custom_emoji_author" class="author_cell hide_on_mobile" style="white-space: normal;"></td>';
+            testTr += '    <td headers="custom_emoji_remove" class="align_middle align_right bold"></td>';
+            testTr += '</tr>';
+        });
+        return testTr;
+    }
+
+    $('#custom_emoji tbody').before(emojiRows('teammabel'));
 })();

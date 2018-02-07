@@ -38,7 +38,7 @@
     }
 
     const STORED_DATA_KEY = 'emoji-import-export';
-    var subdomain = window.location.hostname.split('.')[0];
+    var currentTeamName = window.location.hostname.split('.')[0];
     var custom_emoji = document.evaluate('//*[@id="custom_emoji"]/tbody/tr[@class="emoji_row"]/td/span/@data-original',
                                          document, null, XPathResult.ORDERED_NODE_ITERATOR_TYPE, null);
     var savedEmoji = JSON.parse(GM_getValue(STORED_DATA_KEY, '{}'));
@@ -50,20 +50,20 @@
         newEmoji[name] = emoji.value;
         emoji = custom_emoji.iterateNext();
     }
-    savedEmoji[subdomain] = newEmoji;
+    savedEmoji[currentTeamName] = newEmoji;
     console.log(savedEmoji);
     GM_setValue(STORED_DATA_KEY, JSON.stringify(savedEmoji));
 
     var html = '<div>Import from: ';
     delete savedEmoji[subdomain];
-    Object.keys(savedEmoji).forEach(function(text) {
-        html += '<input type="button" class="btn" style="margin-left: 1.5rem;" value="' + text + '" id="' + STORED_DATA_KEY + '-btn-' + text + '">';
+    Object.keys(savedEmoji).forEach(function(teamName) {
+        html += '<input type="button" class="btn" style="margin-left: 1.5rem;" value="' + teamName + '" id="' + STORED_DATA_KEY + '-btn-' + teamName + '">';
     });
     html += '</div>';
     $('#custom_emoji').before(html);
 
-    function addEmojiRows(subdomain) {
-        var emojiList = savedEmoji[subdomain] || {};
+    function addEmojiRows(teamName) {
+        var emojiList = savedEmoji[teamName] || {};
         Object.keys(emojiList).forEach(function(emojiName) {
             var emojiUrl = emojiList[emojiName];
             var tr = '';

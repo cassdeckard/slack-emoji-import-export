@@ -55,9 +55,9 @@
     GM_setValue(STORED_DATA_KEY, JSON.stringify(savedEmoji));
 
     var html = '<div>Import from: ';
-    delete savedEmoji[subdomain];
     Object.keys(savedEmoji).forEach(function(teamName) {
-        html += '<input type="button" class="btn" style="margin-left: 1.5rem;" value="' + teamName + '" id="' + STORED_DATA_KEY + '-btn-' + teamName + '">';
+        var disabled = (teamName == currentTeamName) ? ' disabled ' : ' ';
+        html += '<input type="button" class="btn"' + disabled + 'style="margin-left: 1.5rem;" value="' + teamName + '" id="' + STORED_DATA_KEY + '-btn-' + teamName + '">';
     });
     html += '</div>';
     $('#custom_emoji').before(html);

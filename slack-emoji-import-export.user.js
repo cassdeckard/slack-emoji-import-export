@@ -70,7 +70,11 @@
             testTr += '<tr class="emoji_row">';
             testTr += '    <td headers="custom_emoji_image" class="align_middle"><span data-original="'+ emojiUrl +'" class="lazy emoji-wrapper" style="background-color: transparent;"></span></td>';
             testTr += '    <td headers="custom_emoji_name" class="align_middle custom_emoji_name" style="">:'+ emojiName +':</td>';
-            testTr += '    <td headers="custom_emoji_type" class="align_middle"><a  class="display_flex align_items_center break_word bold" id="emoji-import-' + emojiName + '">Import</a></td>';
+            if ($('[headers*="custom_emoji_name"]:contains(:' + emojiName + ':)')[0] === undefined) {
+                testTr += '    <td headers="custom_emoji_type" class="align_middle"><a  class="display_flex align_items_center break_word bold" id="emoji-import-' + emojiName + '">Import</a></td>';
+            } else {
+                testTr += '    <td headers="custom_emoji_type" class="align_middle">(name already used)</td>';
+            }
             testTr += '    <td headers="custom_emoji_author" class="author_cell hide_on_mobile" style="white-space: normal;"></td>';
             testTr += '    <td headers="custom_emoji_remove" class="align_middle align_right bold"></td>';
             testTr += '</tr>';

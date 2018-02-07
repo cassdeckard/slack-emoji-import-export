@@ -8,6 +8,8 @@
 // @run-at       document-end
 // @grant        GM_setValue
 // @grant        GM_getValue
+// @grant        GM_xmlhttpRequest
+// @connect      emoji.slack-edge.com
 // ==/UserScript==
 
 (function() {
@@ -54,4 +56,26 @@
     }
 
     $('#custom_emoji tbody').before(emojiRows('teammabel'));
+
+
+
+    function test() {
+        GM_xmlhttpRequest({
+            method: "GET",
+            url: "https://emoji.slack-edge.com/T04PFBWDB/1up/93875851b9b1b333.jpg",
+            responseType: "arraybuffer",
+            headers: {},
+            onload: function(event) {
+                // Obtain a blob: URL for the image data.
+                var blob = new Blob([event.response], { type: "image/jpeg" } );
+                var file = new File([blob], 'image-to-upload.jpg');
+                const dT = new ClipboardEvent('').clipboardData || // Firefox bug?
+                      new DataTransfer();                          // specs compliant
+                dT.items.add(file);
+                $('#emojiimg')[0].files = dT.files;
+            }
+        });
+
+    }
+    test();
 })();
